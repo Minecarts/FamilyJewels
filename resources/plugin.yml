@@ -1,0 +1,6 @@
+name: FamilyJewels
+main: com.minecarts.familyjewels.FamilyJewels
+version: ${pom.version}
+website: http://minecarts.com/
+author: verrier
+description: Protect your precious ores from prying eyes.

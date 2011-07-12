@@ -57,7 +57,8 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                  deflater.deflate(dataPacket.g);
              } finally { deflater.end(); }
         }
-        this.networkManager.queue(packet);
+        //this.networkManager.queue(packet);
+        super.sendPacket(packet);
     }//sendPacket()
 
     private int replaceUnlitBlocks(Chunk chunk,int xPos, int yPos, int zPos, int xSize, int ySize, int zSize,int k1, byte abyte[]){

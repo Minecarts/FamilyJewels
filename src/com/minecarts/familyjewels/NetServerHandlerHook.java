@@ -3,6 +3,7 @@ package com.minecarts.familyjewels;
 
 import net.minecraft.server.*;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -14,9 +15,20 @@ import java.util.zip.Inflater;
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
     public final int[] hiddenBlocks = {14,15,16,21,48,52,54,56,73,74};
+    private Field packetSize;
+
     public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);
         this.player = player;
+
+        //Setup our reflection to access the compressed data size
+        try{
+            packetSize = Packet51MapChunk.class.getDeclaredField("h");
+            packetSize.setAccessible(true);
+        } catch (NoSuchFieldException e){
+            e.printStackTrace();
+            System.out.println("FamilyJewels> Did the packet structure change? Contact Verrier!");
+        }
     }
 
     @Override
@@ -44,7 +56,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              //Decompres the data so we can overwrite it
              inflater.setInput(dataPacket.g);
              try { inflater.inflate(dataPacket.g); }
-             catch (DataFormatException dataformatexception) { System.out.println("Bad compressed data format"); return; }
+             catch (DataFormatException dataformatexception) { System.out.println("FamilyJewels> Bad compressed data format"); return; }
              finally { inflater.end(); }
 
             //System.out.println(MessageFormat.format("[PLUGIN] Positions: ({0},{1},{2}), Max: ({3},{4},{5}), DataSize: {6}",xPosition,yPosition,zPosition,xSize,ySize,zSize,dataPacket.g.length));
@@ -54,9 +66,10 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              try{
                  deflater.setInput(dataPacket.g);
                  deflater.finish();
-                 deflater.deflate(dataPacket.g);
+                 //Reflection to access this private value >:(
+                 packetSize.setInt(dataPacket,deflater.deflate(dataPacket.g));
              } catch (Exception e){
-                 System.out.println("Failed to recompress data:" + e.getMessage());
+                 System.out.println("FamilyJewels> Failed to recompress data:" + e.getMessage());
              } finally { deflater.end(); }
         }
         //this.networkManager.queue(packet);

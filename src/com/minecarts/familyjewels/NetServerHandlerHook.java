@@ -44,7 +44,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              //Decompres the data so we can overwrite it
              inflater.setInput(dataPacket.g);
              try { inflater.inflate(dataPacket.g); }
-             catch (DataFormatException dataformatexception) { System.out.println("Bad compressed data format"); return; }
+             catch (DataFormatException dataformatexception) { System.out.println("FamilyJewels> Bad compressed data format"); return; }
              finally { inflater.end(); }
 
             //System.out.println(MessageFormat.format("[PLUGIN] Positions: ({0},{1},{2}), Max: ({3},{4},{5}), DataSize: {6}",xPosition,yPosition,zPosition,xSize,ySize,zSize,dataPacket.g.length));
@@ -56,23 +56,24 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                  deflater.finish();
                  deflater.deflate(dataPacket.g);
              } finally { deflater.end(); }
+             super.sendPacket(dataPacket); //Actually send the data packet? Fix corruption???
+             return;
         }
-        //this.networkManager.queue(packet);
         super.sendPacket(packet);
     }//sendPacket()
 
     private int replaceUnlitBlocks(Chunk chunk,int xPos, int yPos, int zPos, int xSize, int ySize, int zSize,int k1, byte abyte[]){
         int tracker = 0;
-        byte[] newArray; //Create a temporary array that we're going to store our modified data in
-        if(ySize == 128){ newArray = new byte[(xSize-xPos) * (ySize-yPos) * (zSize-zPos)]; }
-        else { newArray = new byte[(ySize-yPos)]; }
+        //byte[] newArray; //Create a temporary array that we're going to store our modified data in
+        //if(ySize == 128){ newArray = new byte[(xSize-xPos) * (ySize-yPos) * (zSize-zPos)]; }
+        //else { newArray = new byte[(ySize-yPos)]; }
         
         //Loop over all the blocks in this chunk
         for(int x=xPos; x<xSize || x==xPos; x++){
             for(int z=zPos; z<zSize || z==zPos; z++){
                 tracker = 0;
                 for(int y=yPos; y<ySize || y==yPos; y++){
-                    int index = tracker++; //For partial chunk updates, we only loop over the y values in this function
+                    int index = k1 + tracker++; //For partial chunk updates, we only loop over the y values in this function
                     if(ySize == 128){ index = (x << 11 | z << 7 | y); } //Use a different index if it's a full chunk update
                     int type = chunk.getTypeId(x,y,z);
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
@@ -85,21 +86,22 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                             if(this.getLightLevel(chunk, x, y - 1, z) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x, y, z + 1) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x, y, z - 1) > 0) break CHECKLIGHT;
-                            if(this.getLightLevel(chunk, x, y, z) > 0) break CHECKLIGHT;
+                            //if(this.getLightLevel(chunk, x, y, z) > 0) break CHECKLIGHT;
                             //System.out.println(MessageFormat.format("Replaced: Type: {9}, XYZ: {0},{1},{2}, XYZ Start: {3},{4},{5}, XYZ End: {6},{7},{8}", x,y,z,i,j,k,l,i1,j1,type));
-                            newArray[index] = ((byte)(1 & 0xff));
-                            set = true;
+                            //newArray[index] = ((byte)(1 & 0xff));
+                            abyte[index] = 1;
+                            //set = true;
                         }
-                        if(!set) newArray[index] = ((byte)(type & 0xff));
-                    } else {
-                        newArray[index] = ((byte)(type & 0xff));
+                        //if(!set) newArray[index] = ((byte)(type & 0xff));
+                    //} else {
+                    //    newArray[index] = ((byte)(type & 0xff));
                     }
                 }
             }
         }
         //Copy our temporary generated array data into the packet data field (abyte)
-        System.arraycopy(newArray, 0, abyte, k1, newArray.length);
-        return k1 + newArray.length;
+        //System.arraycopy(newArray, 0, abyte, k1, newArray.length);
+        return k1 + tracker;
     }
     public int getLightLevel(Chunk chunk, int x, int y, int z){
         //We have to use the world.getLight because sometimes the lighting will cross chunks / updates

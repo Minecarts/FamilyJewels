@@ -31,18 +31,16 @@ public class FamilyJewels extends JavaPlugin{
         pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Monitor, this);
 
-        for(Player p : getServer().getOnlinePlayers()){
-            this.hookNSH(p);
-        }
-
-        log("Enabled");
+        //Hook all the existing players
+        for(Player p : getServer().getOnlinePlayers()){ this.hookNSH(p); }
+        log("FamilyJewels> Enabled");
     }
 
     public void onDisable(){
         for(Player p : getServer().getOnlinePlayers()){
             this.unhookNSH(p);
         }
-        log("Disabled");
+        log("FamilyJewels> Disabled");
     }
 
     public void hookNSH(Player player){

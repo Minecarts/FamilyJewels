@@ -27,7 +27,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
             packetSize.setAccessible(true);
         } catch (NoSuchFieldException e){
             e.printStackTrace();
-            System.out.println("FamilyJewels> Did the packet structure change? Contact Verrier!");
+            System.out.println("FamilyJewels> Unable to find compressed data size field! Did the packet structure change?");
         }
     }
 
@@ -66,13 +66,12 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              try{
                  deflater.setInput(dataPacket.g);
                  deflater.finish();
-                 //Reflection to access this private value >:(
-                 packetSize.setInt(packet,deflater.deflate(dataPacket.g));
-             } catch (Exception e){
-                 System.out.println("FamilyJewels> Failed to recompress data:" + e.getMessage());
-             } finally { deflater.end(); }
+                 packetSize.setInt(dataPacket,deflater.deflate(dataPacket.g)); //Reflection to access this private value >:(
+             } catch (Exception e){ System.out.println("FamilyJewels> Failed to recompress data:" + e.getMessage()); }
+             finally { deflater.end(); }
+             super.sendPacket(dataPacket);
+             return;
         }
-        //this.networkManager.queue(packet);
         super.sendPacket(packet);
     }//sendPacket()
 

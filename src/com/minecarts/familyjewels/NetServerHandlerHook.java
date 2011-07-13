@@ -71,6 +71,8 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              } catch (Exception e){
                  System.out.println("FamilyJewels> Failed to recompress data:" + e.getMessage());
              } finally { deflater.end(); }
+             super.sendPacket(dataPacket); //send the packet
+             return;
         }
         //this.networkManager.queue(packet);
         super.sendPacket(packet);

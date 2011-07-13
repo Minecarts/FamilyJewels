@@ -67,12 +67,10 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                  deflater.setInput(dataPacket.g);
                  deflater.finish();
                  //Reflection to access this private value >:(
-                 packetSize.setInt(dataPacket,deflater.deflate(dataPacket.g));
+                 packetSize.setInt(packet,deflater.deflate(dataPacket.g));
              } catch (Exception e){
                  System.out.println("FamilyJewels> Failed to recompress data:" + e.getMessage());
              } finally { deflater.end(); }
-             super.sendPacket(dataPacket); //send the packet
-             return;
         }
         //this.networkManager.queue(packet);
         super.sendPacket(packet);

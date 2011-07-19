@@ -53,6 +53,16 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              Inflater inflater = new Inflater();
              Deflater deflater = new Deflater(-1);
 
+             int origDataSize = 0;
+             int newDataSize = 0;
+             int actualDataSize = 0;
+
+             try{
+                origDataSize = packetSize.getInt(dataPacket);
+             } catch (Exception e){
+                 System.out.println("Unable to get data size");
+             }
+
              //Decompres the data so we can overwrite it
              inflater.setInput(dataPacket.g);
              try { inflater.inflate(dataPacket.g); }
@@ -66,9 +76,15 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              try{
                  deflater.setInput(dataPacket.g);
                  deflater.finish();
-                 packetSize.setInt(dataPacket,deflater.deflate(dataPacket.g)); //Reflection to access this private value >:(
+                 actualDataSize = deflater.deflate(dataPacket.g);
+                 packetSize.setInt(dataPacket,actualDataSize); //Reflection to access this private value >:(
              } catch (Exception e){ System.out.println("FamilyJewels> Failed to recompress data:" + e.getMessage()); }
              finally { deflater.end(); }
+
+             //if(newDataSize > origDataSize){
+                //System.out.println("Did it crash? Orig Size: " + origDataSize + " vs new size: " + newDataSize + " vs actual:" + actualDataSize);
+             //}
+
              super.sendPacket(dataPacket);
              return;
         }

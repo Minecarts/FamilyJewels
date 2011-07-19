@@ -104,6 +104,9 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                 for(int y=yPos; y<ySize || y==yPos; y++){
                     int index = tracker++; //For partial chunk updates, we only loop over the y values in this function
                     if(ySize == 128){ index = (x << 11 | z << 7 | y); } //Use a different index if it's a full chunk update
+
+                    if(index >= newArray.length) continue; //WorldEditing blocks outside the map can cause out of boudns errors
+
                     int type = chunk.getTypeId(x,y,z);
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
                         boolean set = false;

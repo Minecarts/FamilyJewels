@@ -2,9 +2,12 @@ package com.minecarts.familyjewels;
 
 
 import net.minecraft.server.*;
+import sun.plugin2.main.server.Plugin;
 
+import javax.jnlp.ExtendedService;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.security.PublicKey;
 import java.util.Arrays;
 
 import java.text.MessageFormat;
@@ -16,10 +19,12 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
     private EntityPlayer player;
     public final int[] hiddenBlocks = {14,15,16,21,48,52,54,56,73,74};
     private Field packetSize;
+    private FamilyJewels plugin;
 
-    public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
+    public NetServerHandlerHook(FamilyJewels plugin, MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);
         this.player = player;
+        this.plugin = plugin;
 
         //Setup our reflection to access the compressed data size
         try{
@@ -31,6 +36,28 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         }
     }
 
+
+    private class updateBlockRunnable implements Runnable{
+        private int x, y, z;
+        private EntityPlayer player;
+
+        public updateBlockRunnable(int x, int y, int z, EntityPlayer player){
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.player = player;
+        }
+
+        public void run(){
+             player.world.notify(x + 1, y, z);
+             player.world.notify(x - 1, y, z);
+             player.world.notify(x, y + 1, z);
+             player.world.notify(x, y - 1, z);
+             player.world.notify(x, y, z - 1);
+             player.world.notify(x, y, z + 1);
+        }
+    }
+
     @Override
     public void sendPacket(Packet packet){
          if(packet instanceof Packet14BlockDig){
@@ -39,13 +66,9 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                  int x = dataPacket.a;
                  int y = dataPacket.b;
                  int z = dataPacket.c;
-                 //Mark the nearby blocks as dirty so that any hidden blocks will be shown
-                 player.world.notify(x + 1, y, z);
-                 player.world.notify(x - 1, y, z);
-                 player.world.notify(x, y + 1, z);
-                 player.world.notify(x, y - 1, z);
-                 player.world.notify(x, y, z - 1);
-                 player.world.notify(x, y, z + 1);
+                 //Mark the nearby blocks as dirty so that any hidden blocks will be shown, but do it 1 tick later
+                 // because sometimes the light hasn't propagated yet
+                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin,new updateBlockRunnable(x,y,z,player),1);
              }
          } else if(packet instanceof Packet51MapChunk){
              Packet51MapChunk dataPacket = (Packet51MapChunk) packet;

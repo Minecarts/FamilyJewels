@@ -48,7 +48,7 @@ public class FamilyJewels extends JavaPlugin{
         CraftServer server = (CraftServer) getServer();
 
         Location loc = player.getLocation();
-        NetServerHandlerHook handlerHook = new NetServerHandlerHook(server.getHandle().server, craftPlayer.getHandle().netServerHandler.networkManager, craftPlayer.getHandle());
+        NetServerHandlerHook handlerHook = new NetServerHandlerHook(this,server.getHandle().server, craftPlayer.getHandle().netServerHandler.networkManager, craftPlayer.getHandle());
         handlerHook.a(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         craftPlayer.getHandle().netServerHandler = handlerHook;
 

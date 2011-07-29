@@ -14,12 +14,10 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
     private EntityPlayer player;
     public final int[] hiddenBlocks = {14,15,16,21,48,52,54,56,73,74};
     private Field packetSize;
-    private FamilyJewels plugin;
 
-    public NetServerHandlerHook(FamilyJewels plugin, MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
+    public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);
         this.player = player;
-        this.plugin = plugin;
 
         //Setup our reflection to access the compressed data size
         try{
@@ -31,19 +29,12 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         }
     }
 
-
-    private class updateBlockRunnable implements Runnable{
-        private int x, y, z;
-        private EntityPlayer player;
-
-        public updateBlockRunnable(int x, int y, int z, EntityPlayer player){
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.player = player;
-        }
-
-        public void run(){
+    @Override
+    public void a(Packet14BlockDig packet) {
+        if(packet.e == 2){ //If it's a block break
+             int x = packet.a;
+             int y = packet.b;
+             int z = packet.c;
              player.world.notify(x + 1, y, z);
              player.world.notify(x - 1, y, z);
              player.world.notify(x, y + 1, z);
@@ -51,35 +42,25 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
              player.world.notify(x, y, z - 1);
              player.world.notify(x, y, z + 1);
         }
+        super.a(packet);
     }
-
     @Override
     public void sendPacket(Packet packet){
-         if(packet instanceof Packet14BlockDig){
-             Packet14BlockDig dataPacket = (Packet14BlockDig) packet;
-             if(dataPacket.e == 2){ //If it's a block break
-                 int x = dataPacket.a;
-                 int y = dataPacket.b;
-                 int z = dataPacket.c;
-                 //Mark the nearby blocks as dirty so that any hidden blocks will be shown, but do it 1 tick later
-                 // because sometimes the light hasn't propagated yet
-                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin,new updateBlockRunnable(x,y,z,player),1);
-             }
-         } else if(packet instanceof Packet51MapChunk){
+        if(packet instanceof Packet51MapChunk){
              Packet51MapChunk dataPacket = (Packet51MapChunk) packet;
 
              Inflater inflater = new Inflater();
              Deflater deflater = new Deflater(-1);
 
-             int origDataSize = 0;
-             int newDataSize = 0;
+             //int origDataSize = 0;
+             //int newDataSize = 0;
              int actualDataSize = 0;
 
-             try{
-                origDataSize = packetSize.getInt(dataPacket);
-             } catch (Exception e){
-                 System.out.println("Unable to get data size");
-             }
+             //try{
+             //   origDataSize = packetSize.getInt(dataPacket);
+             //} catch (Exception e){
+             //    System.out.println("Unable to get data size");
+             //}
 
              //Decompres the data so we can overwrite it
              inflater.setInput(dataPacket.g);

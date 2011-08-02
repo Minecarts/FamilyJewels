@@ -111,12 +111,12 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                         boolean set = false;
                         CHECKLIGHT: //Check the lighting propagation around the block
                         {
-                            if(chunk.getTypeId(x + 1,y,z) == 0) break CHECKLIGHT;
-                            if(chunk.getTypeId(x - 1,y,z) == 0) break CHECKLIGHT;
-                            if(chunk.getTypeId(x,y + 1,z) == 0) break CHECKLIGHT;
-                            if(chunk.getTypeId(x,y - 1,z) == 0) break CHECKLIGHT;
-                            if(chunk.getTypeId(x,y,z + 1) == 0) break CHECKLIGHT;
-                            if(chunk.getTypeId(x,y,z - 1) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(x + 1,y,z) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(x - 1,y,z) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(x,y + 1,z) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(x,y - 1,z) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(x,y,z + 1) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(x,y,z - 1) == 0) break CHECKLIGHT;
                             /*
                             if(this.getLightLevel(chunk, x + 1, y, z) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x - 1, y, z) > 0) break CHECKLIGHT;

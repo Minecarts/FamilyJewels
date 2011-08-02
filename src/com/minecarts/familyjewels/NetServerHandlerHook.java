@@ -31,7 +31,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
 
     @Override
     public void a(Packet14BlockDig packet) {
-        if(packet.e == 2){ //If it's a block break
+        if(packet.e == 0){ //If it's starting a dig
              int x = packet.a;
              int y = packet.b;
              int z = packet.c;

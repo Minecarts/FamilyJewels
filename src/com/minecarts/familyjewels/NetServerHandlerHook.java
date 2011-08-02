@@ -111,6 +111,13 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                         boolean set = false;
                         CHECKLIGHT: //Check the lighting propagation around the block
                         {
+                            if(chunk.getTypeId(x + 1,y,z) == 0) break CHECKLIGHT;
+                            if(chunk.getTypeId(x - 1,y,z) == 0) break CHECKLIGHT;
+                            if(chunk.getTypeId(x,y + 1,z) == 0) break CHECKLIGHT;
+                            if(chunk.getTypeId(x,y - 1,z) == 0) break CHECKLIGHT;
+                            if(chunk.getTypeId(x,y,z + 1) == 0) break CHECKLIGHT;
+                            if(chunk.getTypeId(x,y,z - 1) == 0) break CHECKLIGHT;
+                            /*
                             if(this.getLightLevel(chunk, x + 1, y, z) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x - 1, y, z) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x, y + 1, z) > 0) break CHECKLIGHT;
@@ -118,6 +125,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                             if(this.getLightLevel(chunk, x, y, z + 1) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x, y, z - 1) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x, y, z) > 0) break CHECKLIGHT;
+                            */
                             //System.out.println(MessageFormat.format("Replaced: Type: {9}, XYZ: {0},{1},{2}, XYZ Start: {3},{4},{5}, XYZ End: {6},{7},{8}", x,y,z,i,j,k,l,i1,j1,type));
                             newArray[index] = ((byte)(1 & 0xff));
                             set = true;

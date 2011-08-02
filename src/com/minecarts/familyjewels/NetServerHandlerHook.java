@@ -104,11 +104,11 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                     int index = tracker++; //For partial chunk updates, we only loop over the y values in this function
                     if(ySize == 128){ index = (x << 11 | z << 7 | y); } //Use a different index if it's a full chunk update
 
-                    if(index >= newArray.length) continue; //WorldEditing blocks outside the map can cause out of boudns errors
+                    if(index >= newArray.length) continue; //WorldEditing blocks outside the map can cause out of bounds errors
 
                     int type = chunk.getTypeId(x,y,z);
+                    newArray[index] = ((byte)(type & 0xff));
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
-                        boolean set = false;
                         CHECKLIGHT: //Check the lighting propagation around the block
                         {
                             if(chunk.world.getTypeId(x + 1,y,z) == 0) break CHECKLIGHT;
@@ -128,11 +128,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                             */
                             //System.out.println(MessageFormat.format("Replaced: Type: {9}, XYZ: {0},{1},{2}, XYZ Start: {3},{4},{5}, XYZ End: {6},{7},{8}", x,y,z,i,j,k,l,i1,j1,type));
                             newArray[index] = ((byte)(1 & 0xff));
-                            set = true;
                         }
-                        if(!set) newArray[index] = ((byte)(type & 0xff));
-                    } else {
-                        newArray[index] = ((byte)(type & 0xff));
                     }
                 }
             }

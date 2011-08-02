@@ -107,16 +107,20 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                     if(index >= newArray.length) continue; //WorldEditing blocks outside the map can cause out of bounds errors
 
                     int type = chunk.getTypeId(x,y,z);
+                    int worldX = chunk.x * 16 + x;
+                    int worldZ = chunk.z * 16 + z;
+
                     newArray[index] = ((byte)(type & 0xff));
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
                         CHECKLIGHT: //Check the lighting propagation around the block
                         {
-                            if(chunk.world.getTypeId(x + 1,y,z) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(x - 1,y,z) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(x,y + 1,z) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(x,y - 1,z) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(x,y,z + 1) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(x,y,z - 1) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(worldX + 1,y,worldZ) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(worldX - 1,y,worldZ) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(worldX,y + 1,worldZ) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(worldX,y - 1,worldZ) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(worldX,y,worldZ + 1) == 0) break CHECKLIGHT;
+                            if(chunk.world.getTypeId(worldX,y,worldZ - 1) == 0) break CHECKLIGHT;
+
                             /*
                             if(this.getLightLevel(chunk, x + 1, y, z) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x - 1, y, z) > 0) break CHECKLIGHT;
@@ -126,7 +130,6 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                             if(this.getLightLevel(chunk, x, y, z - 1) > 0) break CHECKLIGHT;
                             if(this.getLightLevel(chunk, x, y, z) > 0) break CHECKLIGHT;
                             */
-                            //System.out.println(MessageFormat.format("Replaced: Type: {9}, XYZ: {0},{1},{2}, XYZ Start: {3},{4},{5}, XYZ End: {6},{7},{8}", x,y,z,i,j,k,l,i1,j1,type));
                             newArray[index] = ((byte)(1 & 0xff));
                         }
                     }

@@ -114,12 +114,32 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
                         CHECKLIGHT: //Check the lighting propagation around the block
                         {
+
                             if(chunk.world.getTypeId(worldX + 1,y,worldZ) == 0) break CHECKLIGHT;
                             if(chunk.world.getTypeId(worldX - 1,y,worldZ) == 0) break CHECKLIGHT;
                             if(chunk.world.getTypeId(worldX,y + 1,worldZ) == 0) break CHECKLIGHT;
                             if(chunk.world.getTypeId(worldX,y - 1,worldZ) == 0) break CHECKLIGHT;
                             if(chunk.world.getTypeId(worldX,y,worldZ + 1) == 0) break CHECKLIGHT;
                             if(chunk.world.getTypeId(worldX,y,worldZ - 1) == 0) break CHECKLIGHT;
+
+                            /*
+                            if(this.getBlockType(chunk, x + 1, y, z) == 0) break CHECKLIGHT;
+                            if(this.getBlockType(chunk, x - 1, y, z) == 0) break CHECKLIGHT;
+                            if(this.getBlockType(chunk, x, y + 1, z) == 0) break CHECKLIGHT;
+                            if(this.getBlockType(chunk, x, y - 1, z) == 0) break CHECKLIGHT;
+                            if(this.getBlockType(chunk, x, y, z + 1) == 0) break CHECKLIGHT;
+                            if(this.getBlockType(chunk, x, y, z - 1) == 0) break CHECKLIGHT;
+                            */
+
+/*
+                            if(chunk.world.getLightLevel(worldX + 1,y,worldZ) > 0) break CHECKLIGHT;
+                            if(chunk.world.getLightLevel(worldX - 1,y,worldZ) > 0) break CHECKLIGHT;
+                            if(chunk.world.getLightLevel(worldX,y + 1,worldZ) > 0) break CHECKLIGHT;
+                            if(chunk.world.getLightLevel(worldX,y - 1,worldZ) > 0) break CHECKLIGHT;
+                            if(chunk.world.getLightLevel(worldX,y,worldZ + 1) > 0) break CHECKLIGHT;
+                            if(chunk.world.getLightLevel(worldX,y,worldZ - 1) > 0) break CHECKLIGHT;
+                            if(chunk.world.getLightLevel(worldX,y,worldZ) > 0) break CHECKLIGHT;
+*/
 
                             /*
                             if(this.getLightLevel(chunk, x + 1, y, z) > 0) break CHECKLIGHT;
@@ -139,6 +159,12 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         //Copy our temporary generated array data into the packet data field (abyte)
         System.arraycopy(newArray, 0, abyte, k1, newArray.length);
         return k1 + newArray.length;
+    }
+
+    public int getBlockType(Chunk chunk, int x, int y, int z){
+        //We have to use the world.getLight because sometimes the lighting will cross chunks / updates
+        //  which leaves us with missing ores and generally cause issues.
+        return player.world.getTypeId((chunk.x << 4) | (x & 0xF), y & 0x7F, (chunk.z << 4) | (z & 0xF));
     }
     public int getLightLevel(Chunk chunk, int x, int y, int z){
         //We have to use the world.getLight because sometimes the lighting will cross chunks / updates

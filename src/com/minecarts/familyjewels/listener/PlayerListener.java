@@ -20,7 +20,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 
     @Override
     public void onPlayerQuit(PlayerQuitEvent e){
-        plugin.unhookNSH(e.getPlayer());
+        //plugin.unhookNSH(e.getPlayer());
+        //Unhooking on playerQuit seems to cause an infinite loop
     }
-
 }

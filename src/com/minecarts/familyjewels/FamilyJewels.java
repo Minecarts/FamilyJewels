@@ -18,29 +18,19 @@ import org.bukkit.craftbukkit.CraftServer;
 
 public class FamilyJewels extends JavaPlugin{
     public final Logger log = Logger.getLogger("com.minecarts.familyjewels");
-
-    private PluginDescriptionFile pdf;
-    private Configuration config;
     private PlayerListener playerListener;
 
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();
-        PluginDescriptionFile pdf = getDescription();
         this.playerListener = new PlayerListener(this);
-
         pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Monitor, this);
-
-        //Hook all the existing players
-        for(Player p : getServer().getOnlinePlayers()){ this.hookNSH(p); }
-        log("FamilyJewels> Enabled");
+        for(Player p : getServer().getOnlinePlayers()){ this.hookNSH(p); } //Hook all the existing players
+        log("Enabled");
     }
 
     public void onDisable(){
-        for(Player p : getServer().getOnlinePlayers()){
-            this.unhookNSH(p);
-        }
-        log("FamilyJewels> Disabled");
+        for(Player p : getServer().getOnlinePlayers()){ this.unhookNSH(p); }
+        log("Disabled");
     }
 
     public void hookNSH(Player player){
@@ -51,8 +41,6 @@ public class FamilyJewels extends JavaPlugin{
         NetServerHandlerHook handlerHook = new NetServerHandlerHook(server.getHandle().server, craftPlayer.getHandle().netServerHandler.networkManager, craftPlayer.getHandle());
         handlerHook.a(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         craftPlayer.getHandle().netServerHandler = handlerHook;
-
-        System.out.println("Hooked NSH for: " + player);
     }
     public void unhookNSH(Player player){
         CraftPlayer craftPlayer = (CraftPlayer) player;
@@ -62,12 +50,10 @@ public class FamilyJewels extends JavaPlugin{
         NetServerHandler handler = new NetServerHandler(server.getHandle().server,craftPlayer.getHandle().netServerHandler.networkManager, craftPlayer.getHandle());
         handler.a(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         craftPlayer.getHandle().netServerHandler = handler;
-
-        System.out.println("Unhooked NSH for: " + player);
     }
 
     public void log(String message, java.util.logging.Level level){
-        this.log.log(level, "Something:" + "> " + message);
+        this.log.log(level, "FamilyJewels> " + message);
     }
     public void log(String message){
         this.log(message,Level.INFO);

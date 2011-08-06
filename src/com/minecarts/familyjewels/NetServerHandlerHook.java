@@ -13,20 +13,10 @@ import java.util.zip.Inflater;
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
     public final int[] hiddenBlocks = {14,15,16,21,48,52,54,56,73,74};
-    private Field packetSize;
 
     public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);
         this.player = player;
-
-        //Setup our reflection to access the compressed data size
-        try{
-            packetSize = Packet51MapChunk.class.getDeclaredField("h");
-            packetSize.setAccessible(true);
-        } catch (NoSuchFieldException e){
-            e.printStackTrace();
-            System.out.println("FamilyJewels> Unable to find compressed data size field! Did the packet structure change?");
-        }
     }
 
     @Override
@@ -48,9 +38,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
     public void sendPacket(Packet packet){
         if(packet instanceof Packet51MapChunk){
              Packet51MapChunk dataPacket = (Packet51MapChunk) packet;
-             this.breakPacketIntoChunks(dataPacket.a,dataPacket.b,dataPacket.c,dataPacket.d,dataPacket.e,dataPacket.f,dataPacket.g);
-             super.sendPacket(dataPacket);
-             return;
+             this.breakPacketIntoChunks(dataPacket.a,dataPacket.b,dataPacket.c,dataPacket.d,dataPacket.e,dataPacket.f,dataPacket.rawData);
         }
         super.sendPacket(packet);
     }//sendPacket()
@@ -77,44 +65,14 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
 
                     newArray[index] = ((byte)(type & 0xff));
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
-                        CHECKLIGHT: //Check the lighting propagation around the block
+                        CHECKTYPE: //Check the lighting propagation around the block
                         {
-
-                            if(chunk.world.getTypeId(worldX + 1,y,worldZ) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(worldX - 1,y,worldZ) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(worldX,y + 1,worldZ) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(worldX,y - 1,worldZ) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(worldX,y,worldZ + 1) == 0) break CHECKLIGHT;
-                            if(chunk.world.getTypeId(worldX,y,worldZ - 1) == 0) break CHECKLIGHT;
-
-                            /*
-                            if(this.getBlockType(chunk, x + 1, y, z) == 0) break CHECKLIGHT;
-                            if(this.getBlockType(chunk, x - 1, y, z) == 0) break CHECKLIGHT;
-                            if(this.getBlockType(chunk, x, y + 1, z) == 0) break CHECKLIGHT;
-                            if(this.getBlockType(chunk, x, y - 1, z) == 0) break CHECKLIGHT;
-                            if(this.getBlockType(chunk, x, y, z + 1) == 0) break CHECKLIGHT;
-                            if(this.getBlockType(chunk, x, y, z - 1) == 0) break CHECKLIGHT;
-                            */
-
-/*
-                            if(chunk.world.getLightLevel(worldX + 1,y,worldZ) > 0) break CHECKLIGHT;
-                            if(chunk.world.getLightLevel(worldX - 1,y,worldZ) > 0) break CHECKLIGHT;
-                            if(chunk.world.getLightLevel(worldX,y + 1,worldZ) > 0) break CHECKLIGHT;
-                            if(chunk.world.getLightLevel(worldX,y - 1,worldZ) > 0) break CHECKLIGHT;
-                            if(chunk.world.getLightLevel(worldX,y,worldZ + 1) > 0) break CHECKLIGHT;
-                            if(chunk.world.getLightLevel(worldX,y,worldZ - 1) > 0) break CHECKLIGHT;
-                            if(chunk.world.getLightLevel(worldX,y,worldZ) > 0) break CHECKLIGHT;
-*/
-
-                            /*
-                            if(this.getLightLevel(chunk, x + 1, y, z) > 0) break CHECKLIGHT;
-                            if(this.getLightLevel(chunk, x - 1, y, z) > 0) break CHECKLIGHT;
-                            if(this.getLightLevel(chunk, x, y + 1, z) > 0) break CHECKLIGHT;
-                            if(this.getLightLevel(chunk, x, y - 1, z) > 0) break CHECKLIGHT;
-                            if(this.getLightLevel(chunk, x, y, z + 1) > 0) break CHECKLIGHT;
-                            if(this.getLightLevel(chunk, x, y, z - 1) > 0) break CHECKLIGHT;
-                            if(this.getLightLevel(chunk, x, y, z) > 0) break CHECKLIGHT;
-                            */
+                            if(chunk.world.getTypeId(worldX + 1,y,worldZ) == 0) break CHECKTYPE;
+                            if(chunk.world.getTypeId(worldX - 1,y,worldZ) == 0) break CHECKTYPE;
+                            if(chunk.world.getTypeId(worldX,y + 1,worldZ) == 0) break CHECKTYPE;
+                            if(chunk.world.getTypeId(worldX,y - 1,worldZ) == 0) break CHECKTYPE;
+                            if(chunk.world.getTypeId(worldX,y,worldZ + 1) == 0) break CHECKTYPE;
+                            if(chunk.world.getTypeId(worldX,y,worldZ - 1) == 0) break CHECKTYPE;
                             newArray[index] = ((byte)(1 & 0xff));
                         }
                     }
@@ -125,18 +83,6 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         System.arraycopy(newArray, 0, abyte, k1, newArray.length);
         return k1 + newArray.length;
     }
-
-    public int getBlockType(Chunk chunk, int x, int y, int z){
-        //We have to use the world.getLight because sometimes the lighting will cross chunks / updates
-        //  which leaves us with missing ores and generally cause issues.
-        return player.world.getTypeId((chunk.x << 4) | (x & 0xF), y & 0x7F, (chunk.z << 4) | (z & 0xF));
-    }
-    public int getLightLevel(Chunk chunk, int x, int y, int z){
-        //We have to use the world.getLight because sometimes the lighting will cross chunks / updates
-        //  which leaves us with missing ores and generally cause issues.
-        return player.world.getLightLevel((chunk.x << 4) | (x & 0xF), y & 0x7F, (chunk.z << 4) | (z & 0xF));
-    }
-
 
     //This is done because the arrays are concatinated together inside the packet
     //  we can't directly access data for a given x,y,z because we don't know where in the packet
@@ -168,7 +114,6 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                 if(k4 > 16) { k4 = 16; }
 
                 Chunk chunk = player.world.getChunkAt(j3, i4);
-                //System.out.println(MessageFormat.format("[PLUGIN] Chunk: {0},{1} - Sizes: ({2},{3},{4}) -> ({5},{6},{7}), K2: {8}",j3,i4,k3,l2,j4,l3,i3,k4,k2));
                 if(i1 == 128){ //It's a full chunk update
                     k2 = replaceUnlitBlocks(chunk,k3, l2, j4, l3, i3, k4, k2,abyte0);
                 } else { //Partial chunk update

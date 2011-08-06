@@ -18,10 +18,9 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
         plugin.hookNSH(e.getPlayer());
     }
 
-    /*
     @Override
     public void onPlayerQuit(PlayerQuitEvent e){
         plugin.unhookNSH(e.getPlayer());
     }
-    */
+
 }

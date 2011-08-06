@@ -48,42 +48,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
     public void sendPacket(Packet packet){
         if(packet instanceof Packet51MapChunk){
              Packet51MapChunk dataPacket = (Packet51MapChunk) packet;
-
-             Inflater inflater = new Inflater();
-             Deflater deflater = new Deflater(-1);
-
-             //int origDataSize = 0;
-             //int newDataSize = 0;
-             int actualDataSize = 0;
-
-             //try{
-             //   origDataSize = packetSize.getInt(dataPacket);
-             //} catch (Exception e){
-             //    System.out.println("Unable to get data size");
-             //}
-
-             //Decompres the data so we can overwrite it
-             inflater.setInput(dataPacket.g);
-             try { inflater.inflate(dataPacket.g); }
-             catch (DataFormatException dataformatexception) { System.out.println("FamilyJewels> Bad compressed data format"); return; }
-             finally { inflater.end(); }
-
-            //System.out.println(MessageFormat.format("[PLUGIN] Positions: ({0},{1},{2}), Max: ({3},{4},{5}), DataSize: {6}",xPosition,yPosition,zPosition,xSize,ySize,zSize,dataPacket.g.length));
              this.breakPacketIntoChunks(dataPacket.a,dataPacket.b,dataPacket.c,dataPacket.d,dataPacket.e,dataPacket.f,dataPacket.g);
-
-            //Recompress the data
-             try{
-                 deflater.setInput(dataPacket.g);
-                 deflater.finish();
-                 actualDataSize = deflater.deflate(dataPacket.g);
-                 packetSize.setInt(dataPacket,actualDataSize); //Reflection to access this private value >:(
-             } catch (Exception e){ System.out.println("FamilyJewels> Failed to recompress data:" + e.getMessage()); }
-             finally { deflater.end(); }
-
-             //if(newDataSize > origDataSize){
-                //System.out.println("Did it crash? Orig Size: " + origDataSize + " vs new size: " + newDataSize + " vs actual:" + actualDataSize);
-             //}
-
              super.sendPacket(dataPacket);
              return;
         }

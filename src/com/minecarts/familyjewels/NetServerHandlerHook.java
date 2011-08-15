@@ -12,7 +12,7 @@ import java.util.zip.Inflater;
 
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
-    public final int[] hiddenBlocks = {14,15,16,21,48,52,54,56,73,74};
+    public final int[] hiddenBlocks = {14,15,16,21,56,73,74};
 
     public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);

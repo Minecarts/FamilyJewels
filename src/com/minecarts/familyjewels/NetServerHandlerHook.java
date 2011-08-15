@@ -3,12 +3,7 @@ package com.minecarts.familyjewels;
 
 import net.minecraft.server.*;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
-
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
@@ -43,7 +38,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         super.sendPacket(packet);
     }//sendPacket()
 
-    private int replaceUnlitBlocks(Chunk chunk,int xPos, int yPos, int zPos, int xSize, int ySize, int zSize,int k1, byte abyte[]){
+    private int replaceCoveredBlocks(Chunk chunk, int xPos, int yPos, int zPos, int xSize, int ySize, int zSize, int k1, byte abyte[]){
         int tracker = 0;
         byte[] newArray; //Create a temporary array that we're going to store our modified data in
         if(ySize == 128){ newArray = new byte[(xSize-xPos) * (ySize-yPos) * (zSize-zPos)]; }
@@ -65,7 +60,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
 
                     newArray[index] = ((byte)(type & 0xff));
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
-                        CHECKTYPE: //Check the lighting propagation around the block
+                        CHECKTYPE: //Check to see if there is air around the block
                         {
                             if(chunk.world.getTypeId(worldX + 1,y,worldZ) == 0) break CHECKTYPE;
                             if(chunk.world.getTypeId(worldX - 1,y,worldZ) == 0) break CHECKTYPE;
@@ -115,11 +110,11 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
 
                 Chunk chunk = player.world.getChunkAt(j3, i4);
                 if(i1 == 128){ //It's a full chunk update
-                    k2 = replaceUnlitBlocks(chunk,k3, l2, j4, l3, i3, k4, k2,abyte0);
+                    k2 = replaceCoveredBlocks(chunk, k3, l2, j4, l3, i3, k4, k2, abyte0);
                 } else { //Partial chunk update
                     for (int subchunkx = k3; subchunkx < l3; ++subchunkx) {
                         for (int subchunkz = j4; subchunkz < k4; ++subchunkz) {
-                            k2 = this.replaceUnlitBlocks(chunk,subchunkx,l2,subchunkz,subchunkx,i3,subchunkz,k2,abyte0);
+                            k2 = this.replaceCoveredBlocks(chunk, subchunkx, l2, subchunkz, subchunkx, i3, subchunkz, k2, abyte0);
                         }
                     }
                 }

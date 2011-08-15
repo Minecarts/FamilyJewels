@@ -62,12 +62,12 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
                         CHECKTYPE: //Check to see if there is air around the block
                         {
-                            if(chunk.world.getTypeId(worldX + 1,y,worldZ) == 0) break CHECKTYPE;
-                            if(chunk.world.getTypeId(worldX - 1,y,worldZ) == 0) break CHECKTYPE;
-                            if(chunk.world.getTypeId(worldX,y + 1,worldZ) == 0) break CHECKTYPE;
-                            if(chunk.world.getTypeId(worldX,y - 1,worldZ) == 0) break CHECKTYPE;
-                            if(chunk.world.getTypeId(worldX,y,worldZ + 1) == 0) break CHECKTYPE;
-                            if(chunk.world.getTypeId(worldX,y,worldZ - 1) == 0) break CHECKTYPE;
+                            if(isBlockTransparent(chunk.world, worldX + 1, y, worldZ)) break CHECKTYPE;
+                            if(isBlockTransparent(chunk.world, worldX - 1, y, worldZ)) break CHECKTYPE;
+                            if(isBlockTransparent(chunk.world, worldX, y + 1, worldZ)) break CHECKTYPE;
+                            if(isBlockTransparent(chunk.world, worldX, y - 1, worldZ)) break CHECKTYPE;
+                            if(isBlockTransparent(chunk.world, worldX, y, worldZ + 1)) break CHECKTYPE;
+                            if(isBlockTransparent(chunk.world, worldX, y, worldZ - 1)) break CHECKTYPE;
                             newArray[index] = ((byte)(1 & 0xff));
                         }
                     }
@@ -77,6 +77,13 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         //Copy our temporary generated array data into the packet data field (abyte)
         System.arraycopy(newArray, 0, abyte, k1, newArray.length);
         return k1 + newArray.length;
+    }
+
+    //Allow ores to be "burried" in other things but still show up, eg torches and ladders
+    //  since those blocks can be clicked through / seen through (Fixed a bug where chests under torches would be invisible
+    public boolean isBlockTransparent(World world, int x, int y, int z){
+        int blockType = world.getTypeId(x,y,z);
+        return blockType == 0 || blockType == 50 || blockType == 65 || blockType == 66 || blockType == 75 || blockType == 76 || blockType == 77 || blockType == 55 || blockType == 69 || blockType == 39 || blockType == 40;
     }
 
     //This is done because the arrays are concatinated together inside the packet

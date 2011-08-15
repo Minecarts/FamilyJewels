@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
-    public final int[] hiddenBlocks = {14,15,16,21,56,73,74};
+    public final int[] hiddenBlocks = {14,15,16,21,56,73,74,54,33,29,34,55};
 
     public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);

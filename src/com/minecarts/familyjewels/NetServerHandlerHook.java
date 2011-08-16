@@ -83,7 +83,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
     //  since those blocks can be clicked through / seen through (Fixed a bug where chests under torches would be invisible
     public boolean isBlockTransparent(World world, int x, int y, int z){
         int blockType = world.getTypeId(x,y,z);
-        return blockType == 0 || blockType == 50 || blockType == 65 || blockType == 66 || blockType == 75 || blockType == 76 || blockType == 77 || blockType == 55 || blockType == 69 || blockType == 39 || blockType == 40;
+        return blockType == 0 || blockType == 50 || blockType == 65 || blockType == 66 || blockType == 75 || blockType == 76 || blockType == 77 || blockType == 55 || blockType == 69 || blockType == 39 || blockType == 40 || blockType == 8 || blockType == 9 || blockType == 10 || blockType == 11 || blockType == 20 || blockType == 67 || blockType == 53;
     }
 
     //This is done because the arrays are concatinated together inside the packet

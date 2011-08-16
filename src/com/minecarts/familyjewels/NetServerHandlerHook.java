@@ -17,15 +17,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
     @Override
     public void a(Packet14BlockDig packet) {
         if(packet.e == 0){ //If it's starting a dig
-             int x = packet.a;
-             int y = packet.b;
-             int z = packet.c;
-             player.world.notify(x + 1, y, z);
-             player.world.notify(x - 1, y, z);
-             player.world.notify(x, y + 1, z);
-             player.world.notify(x, y - 1, z);
-             player.world.notify(x, y, z - 1);
-             player.world.notify(x, y, z + 1);
+             makeBlocksDirtyInRadius(player.world,packet.a,packet.b,packet.c,3);
         }
         super.a(packet);
     }
@@ -37,6 +29,20 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         }
         super.sendPacket(packet);
     }//sendPacket()
+
+    //Update the blocks in a radius around the punched block becuase of
+    //  the fact that lag can cause some ores not to show up right away thus
+    //  a player might miss them, by updating 3 blocks around it, there's a greater
+    //  chance the block will be updated before the player gets to it
+    private void makeBlocksDirtyInRadius(World world, int x, int y, int z, int radius){
+        for(int a = x-radius; a <= x + radius; a++){
+            for(int b = y-radius; b <= y + radius; b++){
+                for(int c = z-radius; c <= z + radius; c++){
+                    world.notify(a,b,c); //Mark the block as dirty, so it's updated to the client, bypasses antixray check
+                }
+            }
+        }
+    }
 
     private int replaceCoveredBlocks(Chunk chunk, int xPos, int yPos, int zPos, int xSize, int ySize, int zSize, int k1, byte abyte[]){
         int tracker = 0;

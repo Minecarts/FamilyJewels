@@ -8,6 +8,7 @@ import java.util.Arrays;
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
     public final int[] hiddenBlocks = {14,15,16,21,56,73,74,54};
+    private final int updateRadius = 3;
 
     public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);
@@ -17,7 +18,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
     @Override
     public void a(Packet14BlockDig packet) {
         if(packet.e == 0){ //If it's starting a dig
-             makeBlocksDirtyInRadius(player.world,packet.a,packet.b,packet.c,3);
+             makeBlocksDirtyInRadius(player.world,packet.a,packet.b,packet.c,updateRadius);
         }
         super.a(packet);
     }
@@ -64,7 +65,17 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                     int worldX = chunk.x * 16 + x;
                     int worldZ = chunk.z * 16 + z;
 
-                    newArray[index] = ((byte)(type & 0xff));
+                    newArray[index] = ((byte)(type & 0xff)); //Set it to the ACTUAL type
+
+                    //If the player is within N blocks of the block being checked, we're skipping the square root to make it
+                    //  slightly more efficient, could possibly see if Manhattan distance increases this speed at all but likely not worth it
+                    double xDelta = worldX - player.locX;
+                    double yDelta = y - player.locY;
+                    double zDelta = worldZ - player.locZ;
+                    if(xDelta*xDelta+yDelta*yDelta+zDelta*zDelta <= 25){ //Normal reach is 4 blocks, but assuming 5 (5^2 =25)
+                        continue;
+                    }
+
                     if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
                         CHECKTYPE: //Check to see if there is air around the block
                         {
@@ -74,7 +85,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                             if(isBlockTransparent(chunk.world, worldX, y - 1, worldZ)) break CHECKTYPE;
                             if(isBlockTransparent(chunk.world, worldX, y, worldZ + 1)) break CHECKTYPE;
                             if(isBlockTransparent(chunk.world, worldX, y, worldZ - 1)) break CHECKTYPE;
-                            newArray[index] = ((byte)(1 & 0xff));
+                            newArray[index] = ((byte)(1 & 0xff)); //Set it to smooth stone
                         }
                     }
                 }

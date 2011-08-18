@@ -39,6 +39,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
         for(int a = x-radius; a <= x + radius; a++){
             for(int b = y-radius; b <= y + radius; b++){
                 for(int c = z-radius; c <= z + radius; c++){
+                    if(a==x && b==y && c==z) continue; //Skip the actual block we're hitting to prevent it from reappearing
                     world.notify(a,b,c); //Mark the block as dirty, so it's updated to the client, bypasses antixray check
                 }
             }

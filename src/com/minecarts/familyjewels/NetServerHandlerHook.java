@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
     public final int[] hiddenBlocks = {14,15,16,21,56,73,74,54};
-    private final int updateRadius = 3;
+    private final int updateRadius = 2;
 
     public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
         super(minecraftserver,networkmanager,player);
@@ -73,7 +73,12 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                     double xDelta = worldX - player.locX;
                     double yDelta = y - player.locY;
                     double zDelta = worldZ - player.locZ;
-                    if(xDelta*xDelta+yDelta*yDelta+zDelta*zDelta <= 25){ //Normal reach is 4 blocks, but assuming 5 (5^2 =25)
+                    //When we do world.notify() above to force the update of nearby blocks to the one punched
+                    //  we may sometimes send enough blocks that cause a multiblock update, which then fires this
+                    //  hide code again, so in order to work around that we need to not update the player is nearby to
+                    //  Note: We also check if it's a full chunk to prevent relogging to see nearby blocks
+                    //  Note: This will only be necessary wehn the radius > 2, as 10 blocks == full chunk update
+                    if((ySize != 128) && ((xDelta*xDelta)+(yDelta*yDelta)+(zDelta*zDelta) <= 108)){
                         continue;
                     }
 

@@ -17,7 +17,8 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
 
     @Override
     public void a(Packet14BlockDig packet) {
-        if(packet.e == 0){ //If it's starting a dig
+        if(packet.e == 0x0 || packet.e == 0x2){ //If it's starting a dig
+             System.out.println("Starting a dig");
              makeBlocksDirtyInRadius(player.world,packet.a,packet.b,packet.c,updateRadius);
         }
         super.a(packet);
@@ -41,6 +42,8 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                 for(int c = z-radius; c <= z + radius; c++){
                     if(a==x && b==y && c==z) continue; //Skip the actual block we're hitting to prevent it from reappearing
                     world.notify(a,b,c); //Mark the block as dirty, so it's updated to the client, bypasses antixray check
+                    //Alternatively force the client to update these blocks
+                    
                 }
             }
         }

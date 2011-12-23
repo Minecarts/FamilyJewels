@@ -48,7 +48,7 @@ public class FamilyJewels extends JavaPlugin{
                 System.out.println("Nulled NSH for " + craftPlayer.getName());
                 craftPlayer.getHandle().netServerHandler = null;
             }
-        },20 * 2);
+        },1);
     }
 
     public void log(String message, java.util.logging.Level level){

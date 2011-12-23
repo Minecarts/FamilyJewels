@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler {
     private EntityPlayer player;
-    public final int[] hiddenBlocks = {14,15,16,21,56,73,74,54};
     private final int updateRadius = 2;
 
     public NetServerHandlerHook(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer player){
@@ -84,7 +83,7 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
                         continue;
                     }
 
-                    if(Arrays.binarySearch(this.hiddenBlocks, type) >= 0){
+                    if(Arrays.binarySearch(FamilyJewels.hiddenBlocks, type) >= 0){
                         CHECKTYPE: //Check to see if there is air around the block
                         {
                             if(isBlockTransparent(chunk.world, worldX + 1, y, worldZ)) break CHECKTYPE;

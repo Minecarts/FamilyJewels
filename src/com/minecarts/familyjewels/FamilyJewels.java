@@ -1,5 +1,6 @@
 package com.minecarts.familyjewels;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -17,6 +18,8 @@ import org.bukkit.craftbukkit.CraftServer;
 public class FamilyJewels extends JavaPlugin{
     public final Logger log = Logger.getLogger("com.minecarts.familyjewels");
     private PlayerListener playerListener;
+    
+    public static Integer[] hiddenBlocks;
 
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();
@@ -24,6 +27,13 @@ public class FamilyJewels extends JavaPlugin{
         pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Monitor, this);
         for(Player p : getServer().getOnlinePlayers()){ this.hookNSH(p); } //Hook all the existing players
+
+        hiddenBlocks = (Integer[])getConfig().getList("hidden_blocks").toArray(new Integer[]{});
+        Arrays.sort(hiddenBlocks); //Make sure the array is sorted for binarySearch later
+        
+        getConfig().options().copyDefaults(true);
+        this.saveConfig();
+
         log("Enabled");
     }
 

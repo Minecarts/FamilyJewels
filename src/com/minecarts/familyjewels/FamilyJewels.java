@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import com.minecarts.familyjewels.listener.PlayerListener;
+import net.minecraft.server.NetServerHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
@@ -52,13 +53,17 @@ public class FamilyJewels extends JavaPlugin{
         craftPlayer.getHandle().netServerHandler = handlerHook;
     }
     public void unhookNSH(Player player){
-        final CraftPlayer craftPlayer = (CraftPlayer) player;
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this,new Runnable() {
-            public void run() {
-                System.out.println("Nulled NSH for " + craftPlayer.getName());
-                craftPlayer.getHandle().netServerHandler = null;
-            }
-        },1);
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        CraftServer server = (CraftServer) getServer();
+
+        Location loc = player.getLocation();
+        //In order to prevent an infinite loop, only reset this NetServerHandler if it's an instance of
+        //  our hook
+        if(craftPlayer.getHandle().netServerHandler instanceof NetServerHandlerHook){
+            NetServerHandler handler = new NetServerHandler(server.getHandle().server,craftPlayer.getHandle().netServerHandler.networkManager, craftPlayer.getHandle());
+            handler.a(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+            craftPlayer.getHandle().netServerHandler = handler;
+        }
     }
 
     public void log(String message, java.util.logging.Level level){

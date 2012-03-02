@@ -2,16 +2,19 @@ package com.minecarts.familyjewels.listener;
 
 import com.minecarts.familyjewels.FamilyJewels;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PlayerListener extends org.bukkit.event.player.PlayerListener {
+public class PlayerListener implements Listener {
     private FamilyJewels plugin;
     public PlayerListener(FamilyJewels plugin){
         this.plugin = plugin;
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(final PlayerJoinEvent e){
         //Doing this 1 tick later can result in some chunks not being fully hidden (usually just the one they spawn in)
         //  We have to do it 1 tick later becuase the NSH is set in NetworkListenThread AFTER the player join event
@@ -24,7 +27,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
         },1);
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(final PlayerQuitEvent e){
         plugin.unhookNSH((e.getPlayer()));
     }

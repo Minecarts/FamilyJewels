@@ -22,17 +22,10 @@ import org.bukkit.craftbukkit.CraftServer;
 
 
 public class FamilyJewels extends JavaPlugin{
-    public final Logger log = Logger.getLogger("com.minecarts.familyjewels");
-    private PlayerListener playerListener;
-    //private HashMap<Player, NetServerHandler> nshmap = new HashMap<Player, NetServerHandler>();
-    
     public static Integer[] hiddenBlocks;
 
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();
-        this.playerListener = new PlayerListener(this);
-        pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Monitor, this);
         for(Player p : getServer().getOnlinePlayers()){ this.hookNSH(p); } //Hook all the existing players
 
         hiddenBlocks = (Integer[])getConfig().getList("hidden_blocks").toArray(new Integer[]{});
@@ -40,6 +33,8 @@ public class FamilyJewels extends JavaPlugin{
         
         getConfig().options().copyDefaults(true);
         this.saveConfig();
+
+        pm.registerEvents(new PlayerListener(this),this);
 
         log("Enabled");
     }
@@ -92,7 +87,7 @@ public class FamilyJewels extends JavaPlugin{
     }
 
     public void log(String message, java.util.logging.Level level){
-        this.log.log(level, "FamilyJewels> " + message);
+        getLogger().log(level, "FamilyJewels> " + message);
     }
     public void log(String message){
         this.log(message,Level.INFO);

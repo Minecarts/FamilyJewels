@@ -72,7 +72,42 @@ public class NetServerHandlerHook extends net.minecraft.server.NetServerHandler 
 
     public boolean isBlockTransparent(World world, int x, int y, int z){
         int blockType = world.getTypeId(x,y,z);
-        return blockType == 0 || blockType == 50 || blockType == 65 || blockType == 66 || blockType == 75 || blockType == 76 || blockType == 77 || blockType == 55 || blockType == 69 || blockType == 39 || blockType == 40 || blockType == 8 || blockType == 9 || blockType == 10 || blockType == 11 || blockType == 20 || blockType == 67 || blockType == 53;
+        return blockType == 0 || //air
+                blockType == 8 || //water
+                blockType == 9 || //water
+                blockType == 10 || //lava
+                blockType == 11 || //lava
+                blockType == 20 || //glass block
+                blockType == 39 || //mushroom (brown)
+                blockType == 40 || //mushroom (red)
+                blockType == 44 || //slab
+                blockType == 50 || //torch
+                blockType == 53 || //wood stiars
+                blockType == 55 || //redstone wire
+                blockType == 63 || //sign
+                blockType == 64 || //wood door
+                blockType == 65 || //ladder
+                blockType == 66 || //tracks
+                blockType == 67 || //cobble stair
+                blockType == 68 || //sign
+                blockType == 69 || //lever
+                blockType == 71 || //Iron doors
+                blockType == 72 || //Pressure plates
+                blockType == 75 || //redstone torch off
+                blockType == 76 || //redstone torch on
+                blockType == 77 || // button
+                blockType == 85 || //fence
+                blockType == 92 || //cake
+                blockType == 93 || //diode off
+                blockType == 94 || //diode on
+                blockType == 95 || //chest
+                blockType == 96 || //trap door
+                blockType == 101 || //iron bar
+                blockType == 102 || //glass pane
+                blockType == 108 || //brick star
+                blockType == 109 || //stone brick stair
+                blockType == 113 || //nether fence
+                blockType == 114; //nether stair
     }
 
     private byte[] replaceCoveredBlocks(Chunk chunk, ChunkSection section){

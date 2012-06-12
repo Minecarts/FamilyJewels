@@ -1,6 +1,7 @@
 package com.minecarts.familyjewels;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,12 +22,15 @@ import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.CraftServer;
 
 
-public class FamilyJewels extends JavaPlugin{
+public class FamilyJewels extends JavaPlugin {
     public static Integer[] hiddenBlocks;
-
+    
+    @Override
     public void onEnable() {
-        PluginManager pm = getServer().getPluginManager();
-        for(Player p : getServer().getOnlinePlayers()){ this.hookNSH(p); } //Hook all the existing players
+        //Hook all the existing players
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            this.hookNSH(p);
+        }
 
         hiddenBlocks = (Integer[])getConfig().getList("hidden_blocks").toArray(new Integer[]{});
         Arrays.sort(hiddenBlocks); //Make sure the array is sorted for binarySearch later
@@ -34,17 +38,21 @@ public class FamilyJewels extends JavaPlugin{
         getConfig().options().copyDefaults(true);
         this.saveConfig();
 
-        pm.registerEvents(new PlayerListener(this),this);
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(this),this);
 
-        log("Enabled");
+        getLogger().info("Enabled");
+    }
+    
+    @Override
+    public void onDisable() {
+        for(Player p : getServer().getOnlinePlayers()) {
+            this.unhookNSH(p);
+        }
+        
+        getLogger().info("Disabled");
     }
 
-    public void onDisable(){
-        for(Player p : getServer().getOnlinePlayers()){ this.unhookNSH(p); }
-        log("Disabled");
-    }
-
-    public void hookNSH(Player player){
+    public void hookNSH(Player player) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         CraftServer server = (CraftServer) getServer();
 
@@ -64,17 +72,17 @@ public class FamilyJewels extends JavaPlugin{
         try{
             Field oldNSH = NetworkListenThread.class.getDeclaredField("h");
             oldNSH.setAccessible(true);
-            ArrayList<NetServerHandler> nshs = (ArrayList<NetServerHandler>) oldNSH.get(((CraftServer) getServer()).getHandle().server.networkListenThread);
-            for(NetServerHandler nsh : nshs){
-                if(nsh.player.name.equals(player.getName())){
+            List<NetServerHandler> nshs = (List<NetServerHandler>) oldNSH.get(((CraftServer) getServer()).getHandle().server.networkListenThread);
+            for(NetServerHandler nsh : nshs) {
+                if(nsh.player.name.equals(player.getName())) {
                     nshs.remove(nsh);
                     nshs.add(handlerHook); //Add our hook
                     break;
                 }
             }
-        } catch (NoSuchFieldException e){
+        } catch (NoSuchFieldException e) {
             e.printStackTrace();
-        } catch (IllegalAccessException e){
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -82,14 +90,7 @@ public class FamilyJewels extends JavaPlugin{
         //And now set the NSH to our new hook
         craftPlayer.getHandle().netServerHandler = handlerHook;
     }
-    public void unhookNSH(Player player){
+    public void unhookNSH(Player player) {
         //Nothing to do
-    }
-
-    public void log(String message, java.util.logging.Level level){
-        getLogger().log(level, "FamilyJewels> " + message);
-    }
-    public void log(String message){
-        this.log(message,Level.INFO);
     }
 }
